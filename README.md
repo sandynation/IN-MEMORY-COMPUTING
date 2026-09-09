@@ -1,4 +1,4 @@
-# Post-von-Neumann AI Chip Lab
+# NEW GEN AI Chip Lab
 
 A research-to-hardware portfolio by [sandynation](https://github.com/sandynation).
 
