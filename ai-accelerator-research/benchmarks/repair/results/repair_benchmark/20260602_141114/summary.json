@@ -1,0 +1,9 @@
+{
+  "total_variants": 50,
+  "random_success_rate": 0.0,
+  "bruteforce_success_rate": 0.1,
+  "causal_success_rate": 1.0,
+  "random_avg_attempts": 20.0,
+  "bruteforce_avg_attempts": 18.1,
+  "causal_avg_attempts": 1.0
+}

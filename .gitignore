@@ -1,0 +1,46 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# JavaScript
+node_modules/
+dist/
+build/
+.vite/
+
+# EDA and generated outputs
+*.vcd
+*.log
+*.tmp
+*.bak
+*.exe
+*.dll
+*.pyd
+*.parquet
+*.gguf
+*.pt
+*.zip
+
+# Large/generated datasets and reports
+*.csv
+*.pdf
+*.png
+*.jpg
+*.db
+*.sqlite*
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
