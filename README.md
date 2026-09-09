@@ -9,9 +9,12 @@ Research Tracks
 
 A bit-accurate digital correction core for a virtual in-memory computing tile, addressing sneak-path interference in passive crossbar arrays. Includes the LIF datapath model, reference-column correction logic, golden vectors, RTL, and SKY130 visualization artifacts.
 
-Scope: digital correction core
-Status: simulation and synthesis complete; not fabricated
-Open work: post-silicon measurement, full mixed-signal Chip B, and validation beyond 32×32 analog arrays
+A public evidence package for a digital correction core in a virtual in-memory computing tile. Includes the standard LIF datapath model, interface contract, golden vectors, testbench, and SKY130 visualization artifacts. The mechanism-bearing correction implementation is intentionally withheld.
+
+- Scope: public interface, LIF model, verification evidence, and layout visualization
+- Status: simulation and synthesis complete; not fabricated
+- Open work: post-silicon measurement, full mixed-signal Chip B, and validation beyond 32×32 analog arrays
+
 02 · EDA and RTL Verification
 
 RTL evaluation, Verilog/SystemVerilog test material, synthesis experiments, and OpenROAD-oriented flow work supporting the Chip A correction core and related digital design exercises.

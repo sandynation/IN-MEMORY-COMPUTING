@@ -563,7 +563,7 @@ def block_bboxes(insts: list[Inst]) -> list[dict]:
 
 
 def write_rtl() -> None:
-    """RTL lives in public/rtl/; do not overwrite the proposal-matched sources."""
+    """Keep public RTL artifacts separate from the privately maintained implementation."""
     RTL_DIR.mkdir(parents=True, exist_ok=True)
     stale = RTL_DIR / "vc_unit2_scan.v"
     if stale.exists():

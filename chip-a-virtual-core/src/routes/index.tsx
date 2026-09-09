@@ -281,7 +281,7 @@ function Home() {
             <p className="mt-1">
               Chip A digital core: {nCol} columns × {accum}-bit Vmem + {accum}-bit C.
               λ = 2<sup>−k</sup> barrel-shift. {adc}-bit column ADC and reference-column DAC.
-              No LUT — correction is C[t]+I<sub>ref</sub>, reset with the spike.
+              Public view: LIF datapath, interface contract, and verification evidence. Correction implementation withheld.
             </p>
           </div>
           <SectionTitle label="Selected" />
@@ -315,17 +315,11 @@ function Home() {
               </a>
             </Button>
             <p className="mt-2 text-[11px] leading-relaxed text-fg-subtle">
-              SKY130A stream. Open in KLayout or Magic. RTL is in the same download set below.
+              SKY130A visualization stream. Open in KLayout or Magic. Public RTL contract and testbench are below.
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <a className="text-[11px] text-accent underline-offset-2 hover:underline" href="/rtl/virtual_core_chip_a.v" download>
-                top.v
-              </a>
-              <a className="text-[11px] text-accent underline-offset-2 hover:underline" href="/rtl/vc_unit1.v" download>
-                unit1.v
-              </a>
-              <a className="text-[11px] text-accent underline-offset-2 hover:underline" href="/rtl/vc_unit2.v" download>
-                unit2.v
+              <a className="text-[11px] text-accent underline-offset-2 hover:underline" href="/rtl/virtual_core_chip_a_interface.v" download>
+                interface.v
               </a>
               <a className="text-[11px] text-accent underline-offset-2 hover:underline" href="/rtl/tb_chip_a.v" download>
                 tb.v
@@ -406,7 +400,7 @@ function Home() {
               <Metric k="Util." v={`${(m.utilization * 100).toFixed(1)}%`} />
             </dl>
             <p className="mt-2 text-[11px] leading-relaxed text-fg-subtle">
-              {accum}-bit LIF + {accum}-bit reference-column correction, {adc}-bit ADC/DAC.
+              {accum}-bit LIF datapath, {adc}-bit interface contract. Correction implementation withheld.
               Die {dieSide.toFixed(0)} µm.
             </p>
             </>

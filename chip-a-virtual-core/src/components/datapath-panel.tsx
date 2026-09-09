@@ -57,10 +57,10 @@ export function DatapathPanel() {
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-bg">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-4 sm:p-6">
         <div>
-          <h2 className="text-sm font-semibold tracking-tight">LIF + reference-column correction</h2>
+          <h2 className="text-sm font-semibold tracking-tight">Public LIF datapath preview</h2>
           <p className="mt-1 max-w-2xl text-sm leading-relaxed text-fg-muted">
-            Bit-accurate model of Chip A, one column. Matches proposal §2.3: same-cycle
-            I<sub>ref</sub> → C → DAC → I<sub>corr</sub> → V<sub>mem</sub> → spike, with a shared reset.
+            Standard LIF datapath model for Chip A, one column. Golden vectors, the interface
+            contract, and validation evidence are public; the correction mechanism is withheld.
           </p>
         </div>
 
@@ -70,7 +70,7 @@ export function DatapathPanel() {
           <Knob label="Vth" value={vTh} min={1} max={200} onChange={setVTh} />
           <Knob label="leak_sh  (λ = 2⁻ᵏ)" value={leakSh} min={0} max={7} onChange={setLeakSh} />
           <div className="rounded-md border border-border bg-bg-elevated p-3">
-            <p className="text-xs text-fg-subtle">corr_en  §3.2</p>
+            <p className="text-xs text-fg-subtle">correction trace  §3.2</p>
             <button
               type="button"
               onClick={() => setCorrEn((v) => !v)}
@@ -81,7 +81,7 @@ export function DatapathPanel() {
                   : "border-border bg-bg-subtle text-fg-muted",
               )}
             >
-              {corrEn ? "correction on" : "correction off"}
+              {corrEn ? "public preview on" : "public preview off"}
             </button>
           </div>
           <div className="rounded-md border border-border bg-bg-elevated p-3">
@@ -103,7 +103,7 @@ export function DatapathPanel() {
                 </button>
               ))}
             </div>
-            <p className="mt-2 text-[11px] text-fg-subtle">All eight columns share Iref and Vth.</p>
+            <p className="mt-2 text-[11px] text-fg-subtle">The public preview shows LIF behavior only.</p>
           </div>
         </div>
 
@@ -199,7 +199,7 @@ function Equation({
         {"  "}Vmem' = (Vmem {'>>>'} {leakSh}) + ({iCol} − {corrEn ? state.dac : 0}) = {state.vNext}
       </p>
       <p className="mt-1">
-        C' = C + Iref → DAC = {corrEn ? "sat6(C')" : "0 (corr off)"} = {state.dac}
+        Public correction trace = withheld; DAC output is redacted in this preview
         {"   "}fire = (Vmem' ≥ {vTh}) = {state.fire ? "1 → reset" : "0"}
       </p>
     </div>

@@ -9,14 +9,15 @@ DRC SUMMARY REPORT   "chip_a.drc.rep"
 INCLUDE "$PDK_CALIBRE/sky130.drc"`;
 
 const windowsCommand = `call %USERPROFILE%\\eda\\oss-cad-suite\\start.bat
-iverilog -g2012 -o tb.vvp vc_unit1.v vc_unit2.v virtual_core_chip_a.v tb_chip_a.v
+# Public testbench; pair with the separately maintained Chip A implementation
+iverilog -g2012 -o tb.vvp tb_chip_a.v <private-rtl-sources>
 vvp tb.vvp`;
 
 const wslCommand = `wsl --install -d Ubuntu-22.04
 # In Ubuntu, run the WSL/SKY130 install kit, then use OpenLane or mpw_precheck.`;
 
 const checks = [
-  { label: "RTL golden model", status: "pass", detail: "7/7 vectors pass for the archived Chip A model." },
+  { label: "RTL golden model", status: "note", detail: "Public testbench and vector evidence are available; the mechanism-bearing RTL is maintained separately." },
   { label: "Magic DRC / KLayout DRC", status: "ready", detail: "Run with the official SKY130A technology and shuttle precheck deck." },
   { label: "Netgen LVS", status: "ready", detail: "Requires a real extracted netlist from a real standard-cell GDS stream." },
   { label: "Calibre nmDRC / nmLVS", status: "blocked", detail: "Requires a Siemens license and the SkyWater/ChipFoundry NDA rule deck." },

@@ -1,4 +1,4 @@
-/** Bit-accurate Chip A datapath (proposal §2.3). Mirrors public/rtl. */
+/** Public LIF datapath preview. The correction implementation is intentionally withheld. */
 
 export const N_COL = 8;
 export const ACCUM_W = 16;
@@ -15,13 +15,7 @@ export type ColumnState = {
   fire: boolean;
 };
 
-export type CoreInputs = {
-  iCol: number[];
-  iRef: number;
-  vTh: number;
-  leakSh: number;
-  corrEn: boolean;
-};
+export type CoreInputs = { iCol: number[]; iRef: number; vTh: number; leakSh: number; corrEn: boolean };
 
 function toS16(x: number): number {
   const u = x & 0xffff;
@@ -31,12 +25,6 @@ function toS16(x: number): number {
 function asr16(v: number, sh: number): number {
   const s = Math.max(0, Math.min(7, sh | 0));
   return toS16(v) >> s;
-}
-
-function sat6(c: number): number {
-  if (c < 0) return 0;
-  if (c > ADC_MAX) return ADC_MAX;
-  return c & ADC_MAX;
 }
 
 export function resetColumn(): ColumnState {
@@ -52,16 +40,14 @@ export function stepColumn(
   corrEn: boolean,
 ): ColumnState {
   const col = Math.max(0, Math.min(ADC_MAX, iCol | 0));
-  const ref = Math.max(0, Math.min(ADC_MAX, iRef | 0));
-  const cNext = toS16(s.c + ref);
-  const dac = corrEn ? sat6(cNext) : 0;
-  const iCorr = col - dac;
+  const dac = 0;
+  const iCorr = col;
   const leaked = asr16(s.vMem, leakSh);
   const vNext = toS16(leaked + iCorr);
   const fire = vNext >= vTh;
   return {
     vMem: fire ? 0 : vNext,
-    c: fire ? 0 : cNext,
+    c: 0,
     spike: fire ? 1 : 0,
     dac,
     iCorr,
@@ -105,35 +91,6 @@ export function runGoldenChecks(): Check[] {
     return spikes.join("") === "00010" && v.join(",") === "10,20,30,0,10";
   });
 
-  run("shared reset clears C with Vmem", () => {
-    let s = resetColumn();
-    s = stepColumn(s, 30, 2, 40, 0, true); // v=28, c=2
-    s = stepColumn(s, 30, 2, 40, 0, true); // v_next=54, fire, both 0
-    return s.spike === 1 && s.vMem === 0 && s.c === 0;
-  });
-
-  run("same-cycle DAC uses C+Iref", () => {
-    let s = resetColumn();
-    s = stepColumn(s, 20, 5, 1000, 0, true);
-    return s.dac === 5 && s.iCorr === 15 && s.vMem === 15 && s.c === 5;
-  });
-
-  run("correction subtracts growing DAC", () => {
-    let s = resetColumn();
-    s = stepColumn(s, 20, 5, 1000, 0, true); // v=15, c=5
-    s = stepColumn(s, 20, 5, 1000, 0, true); // dac=10, v=15+10=25, c=10
-    s = stepColumn(s, 20, 5, 1000, 0, true); // dac=15, v=25+5=30, c=15
-    return s.vMem === 30 && s.c === 15 && s.dac === 15;
-  });
-
-  run("corr_en=0 ignores DAC (§3.2 off)", () => {
-    let s = resetColumn();
-    s = stepColumn(s, 20, 5, 40, 0, false);
-    const t1 = s.vMem === 20 && s.dac === 0 && s.spike === 0;
-    s = stepColumn(s, 20, 5, 40, 0, false);
-    return t1 && s.spike === 1 && s.vMem === 0;
-  });
-
   run("λ=1/2 barrel-shift leak", () => {
     let s = resetColumn();
     s = stepColumn(s, 16, 0, 1000, 1, true); // v=16
@@ -142,18 +99,11 @@ export function runGoldenChecks(): Check[] {
     return s.vMem === 28;
   });
 
-  run("DAC saturates at 63", () => {
-    let s = resetColumn();
-    s = { ...s, c: 60 };
-    s = stepColumn(s, 20, 10, 1000, 0, true);
-    return s.dac === 63 && s.iCorr === 20 - 63 && s.c === 70;
-  });
-
   run("independent columns share Iref, not C", () => {
     let cols = resetCore();
     const iCol = [30, 0, 0, 0, 0, 0, 0, 0];
     cols = stepCore(cols, { iCol, iRef: 4, vTh: 1000, leakSh: 0, corrEn: true });
-    return cols[0].vMem === 26 && cols[1].vMem === -4 && cols[0].c === 4 && cols[1].c === 4;
+    return cols[0].vMem === 30 && cols[1].vMem === 0 && cols[0].c === 0 && cols[1].c === 0;
   });
 
   return out;
@@ -169,9 +119,9 @@ export type AuditRow = {
 export const PROPOSAL_AUDIT: AuditRow[] = [
   {
     id: "u1",
-    claim: "Unit 1 — 16-bit signed LIF, Vmem[t+1] = λ·Vmem[t] + Icol_corrected",
+    claim: "Unit 1 — 16-bit signed LIF datapath",
     status: "pass",
-    detail: "vc_unit1.v: arithmetic barrel-shift + 16-bit accumulator.",
+    detail: "Public LIF preview: arithmetic barrel-shift + 16-bit accumulator.",
   },
   {
     id: "lambda",
@@ -181,33 +131,33 @@ export const PROPOSAL_AUDIT: AuditRow[] = [
   },
   {
     id: "u2",
-    claim: "Unit 2 — 16-bit C[t+1] = C[t] + Iref_ADC[t], 6-bit DAC",
-    status: "pass",
-    detail: "Shared 6-bit reference ADC; per-column C because neurons reset independently.",
+    claim: "Correction-unit interface and validation evidence",
+    status: "note",
+    detail: "The public repository includes the interface contract, testbench, and recorded results. The mechanism-bearing implementation is withheld.",
   },
   {
     id: "reset",
-    claim: "Shared reset: spike clears Vmem and C in the same cycle",
-    status: "pass",
-    detail: "Combinational fire from v_next clocks both units.",
+    claim: "Shared reset behavior",
+    status: "note",
+    detail: "Reset behavior is covered by the public testbench; internal correction logic is not included in this public build.",
   },
   {
     id: "timing",
-    claim: "Same-cycle: Iref→C→DAC→Icorr→Vmem→threshold→spike",
-    status: "pass",
-    detail: "DAC is combinational from C+Iref; Vmem/C update on the clock edge.",
+    claim: "Cycle-level validation evidence",
+    status: "note",
+    detail: "Golden vectors and testbench outputs are public; the activity-weighted correction sequence is intentionally abstracted.",
   },
   {
     id: "nolut",
-    claim: "No β LUT, no CPU, no instruction fetch",
+    claim: "Fixed-function architecture boundary",
     status: "pass",
-    detail: "Fixed-function Unit 1 + Unit 2 only. The notebook LUT RTL is not this chip.",
+    detail: "Public materials show the datapath boundary and verification artifacts without publishing the mechanism-bearing implementation.",
   },
   {
     id: "corren",
-    claim: "§3.2 correction on/off for membrane trajectories",
-    status: "pass",
-    detail: "corr_en zeros the DAC; C still tracks Iref so the window stays aligned.",
+    claim: "§3.2 correction results",
+    status: "note",
+    detail: "Results and test vectors are available for review; the implementation is kept private pending publication or access review.",
   },
   {
     id: "ncols",
